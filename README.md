@@ -11,8 +11,6 @@ pinned: false
 
 A real-world reinforcement learning environment where an AI agent learns to rebalance a stock portfolio to match a target allocation. Built using the OpenEnv framework.
 
----
-
 ## 🎯 Objective
 
 The goal of this environment is to train an RL agent to:
@@ -20,8 +18,6 @@ The goal of this environment is to train an RL agent to:
 - Minimize allocation drift from target portfolio weights  
 - Minimize transaction costs incurred during trading  
 - Achieve optimal portfolio balance in the fewest steps  
-
----
 
 ## 🧠 Problem Overview
 
@@ -42,8 +38,6 @@ At each step, the agent observes:
 - **Sell**
 - **Hold**
 
----
-
 ## 🧩 Tasks
 
 | Task | Difficulty | Stocks | Max Steps | Transaction Cost | Volatility |
@@ -56,8 +50,6 @@ Each task increases complexity by introducing:
 - More assets  
 - Transaction costs  
 - Market volatility  
-
----
 
 ## ⚙️ Action Space
 
