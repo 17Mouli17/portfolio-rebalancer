@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 from environment.env import PortfolioEnv
 from environment.models import Action, StepResult, ResetResult, PortfolioState
 
@@ -17,7 +18,7 @@ env = PortfolioEnv()
 
 
 class ResetRequest(BaseModel):
-    task_id: int = 1
+    task_id: Optional[int] = 1
 
 
 @app.get("/")
@@ -30,48 +31,48 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/info")
-def info():
-    return {
-        "objective": "Minimize allocation drift while reducing transaction costs",
-        "action_space": "buy, sell, hold with stock_index and amount",
-        "reward": "balance_score - cost_penalty + time_bonus"
-    }
-
-
 @app.post("/reset", response_model=ResetResult)
-def reset(request: ResetRequest):
+def reset_post(request: Optional[ResetRequest] = None):
     try:
-        result = env.reset(task_id=request.task_id)
+        task_id = request.task_id if request and request.task_id else 1
+        result = env.reset(task_id=task_id)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/reset", response_model=ResetResult)
+def reset_get(task_id: int = 1):
+    try:
+        result = env.reset(task_id=task_id)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/step", response_model=StepResult)
 def step(action: Action):
     try:
-        # Ensure environment is initialized
-        if env.state is None:
-            raise HTTPException(status_code=400, detail="Environment not initialized. Call /reset first.")
-
-        # Validate stock index
-        if action.stock_index >= len(env.state.holdings):
-            raise HTTPException(status_code=400, detail="Invalid stock index for current task")
-
         result = env.step(action)
         return result
-
     except RuntimeError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/state", response_model=PortfolioState)
 def state():
     try:
         return env.state_info()
-    except RuntimeError:
-        raise HTTPException(status_code=400, detail="Environment not initialized. Call /reset first.")
+    except RuntimeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/tasks")
