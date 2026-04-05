@@ -146,7 +146,6 @@ portfolio-rebalancer-env/
 ├── requirements.txt
 └── README.md
 ```
-
 ## Scoring
 
 Submissions are evaluated by running `inference.py` against all 3 tasks. Each task returns a score between 0.0 and 1.0. The final evaluation checks runtime correctness, OpenEnv spec compliance, task design quality, and grading logic.
