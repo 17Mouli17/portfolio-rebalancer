@@ -1,0 +1,106 @@
+name: portfolio-rebalancer
+version: "1.0.0"
+description: >
+  A real-world reinforcement learning environment where an AI agent learns to
+  rebalance a stock portfolio to match a target allocation. Supports 3 tasks
+  of increasing difficulty with transaction costs and market volatility.
+
+author: Chandra Mouli Nakkina
+license: MIT
+
+environment:
+  entry_point: server.app:app
+  type: fastapi
+
+  action_space:
+    type: object
+    properties:
+      action_type:
+        type: string
+        enum: [buy, sell, hold]
+        description: Type of trading action to perform
+      stock_index:
+        type: integer
+        minimum: 0
+        maximum: 10
+        description: Index of the stock (0 to num_stocks-1 depending on task)
+      amount:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Fraction of total portfolio value to trade
+
+  observation_space:
+    type: object
+    properties:
+      stocks:
+        type: array
+        description: List of stock info objects with name, value, allocations and drift
+      total_portfolio_value:
+        type: number
+        description: Total current value of the portfolio in rupees
+      step_number:
+        type: integer
+        description: Current step number in the episode
+      max_steps:
+        type: integer
+        description: Maximum steps allowed in this episode
+      transaction_cost_rate:
+        type: number
+        description: Cost rate applied per trade
+      total_transaction_costs:
+        type: number
+        description: Cumulative transaction costs incurred so far
+      balance_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: How closely the portfolio matches the target allocation
+
+  endpoints:
+    reset:
+      method: POST
+      path: /reset
+      description: Start a new episode for a given task_id
+    step:
+      method: POST
+      path: /step
+      description: Take one action in the environment
+    state:
+      method: GET
+      path: /state
+      description: Get the current internal state of the environment
+
+tasks:
+  - id: 1
+    name: Two-Stock Basic Rebalancer
+    difficulty: easy
+    description: Rebalance a 2-stock portfolio to 50/50 target. No costs, no volatility.
+    max_steps: 10
+    scoring_range: [0.0, 1.0]
+
+  - id: 2
+    name: Four-Stock Rebalancer with Transaction Costs
+    difficulty: medium
+    description: Rebalance a 4-stock portfolio to 40/30/20/10 target with 0.1% trade costs.
+    max_steps: 15
+    scoring_range: [0.0, 1.0]
+
+  - id: 3
+    name: Five-Stock Rebalancer under Volatility
+    difficulty: hard
+    description: Rebalance a 5-stock portfolio under market volatility with costs and trade limits.
+    max_steps: 20
+    scoring_range: [0.0, 1.0]
+
+runtime:
+  python_version: "3.10"
+  port: 7860
+
+api_variables:
+  - name: API_BASE_URL
+    description: The API endpoint for the environment server
+  - name: MODEL_NAME
+    description: The model identifier to use for inference
+  - name: HF_TOKEN
+    description: Your Hugging Face API key
