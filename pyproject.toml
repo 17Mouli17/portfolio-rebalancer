@@ -20,6 +20,12 @@ dependencies = [
     "openenv-core==0.1.0",
 ]
 
+[project.scripts]
+server = "server.app:main"
+
 [project.urls]
 Homepage = "https://huggingface.co/spaces/17Mouli17/portfolio-rebalancer"
 Repository = "https://github.com/17Mouli17/portfolio-rebalancer"
+
+[tool.hatch.build.targets.wheel]
+packages = ["environment", "server"]
