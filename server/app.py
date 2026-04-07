@@ -32,12 +32,18 @@ def health():
     return {"status": "ok"}
 
 
+# ✅ FIXED: Handles missing body safely
 @app.post("/reset", response_model=ResetResult)
 def reset_post(request: Optional[ResetRequest] = None):
     try:
-        task_id = request.task_id if request and request.task_id else 1
+        task_id = 1  # default
+
+        if request is not None and request.task_id is not None:
+            task_id = request.task_id
+
         result = env.reset(task_id=task_id)
         return result
+
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -90,6 +96,7 @@ def list_tasks():
     }
 
 
+# ✅ REQUIRED for validator (entry point)
 def main():
     uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
 
